@@ -1,0 +1,679 @@
+{
+  "name": "AI_QA",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 向指定github仓库添加一条issue \n\n向 https://github.com/Sogrey/AI-QA 仓库中添加一条issue",
+        "height": 760,
+        "width": 1080
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        -580
+      ],
+      "typeVersion": 1,
+      "id": "a140a48c-f067-4719-aab8-6f9de4c6e0e1",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -2840,
+        -280
+      ],
+      "id": "ffe8335d-7668-4efe-8616-b18629024ff7",
+      "name": "When chat message received",
+      "webhookId": "7cdc6d53-f972-4e28-9ed6-26d98639fe16"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "# Loop over input items and add a new field called 'myNewField' to the JSON of each one\n# for item in _input.all():\n#   item.json.myNewField = 1\n# return _input.all()\n\nimport re\n\n# 在n8n中获取输入数据\ninput_str =_input.item.json['chatInput']\nprint(1,input_str)\n\n# 拆分字符串\nquestions = re.split(r'\\n|<br>|<br/>', input_str)\nprint(2,questions)\n\nresult = [];\nfor question in questions:  \n    print(question) \n    result.append(question)\nreturn {\"result\":result}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2620,
+        -280
+      ],
+      "id": "4a725fe5-9a27-4803-a3a2-ad181f5d1526",
+      "name": "聊天内容分隔成数组"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=你是一个专业的在线人工智能咨询助理。您可以根据用户的问题关键词（{{ $json.result }}）使用brave工具根据关键词进行网络搜索。并综合整理归纳有关人工智能方面的知识，面试题答案等。\n##技能\n你能够使用brave工具根据关键词进行网络搜索\n##能力\n0.将检索关键词进一步简化，可以是面向的专业、领域、编程语言或者某个模块等等，总结3个，精简后的关键词保存在最终结果json中的tags字段中\n1.阅读和整理检索到的网络连接相关内容结合你自己的知识总结归纳\n2. 输出回答部分内容以markdown格式，保存在最终结果json中的answer字段中。示例(其中内容根据检索的主题更改匹配)：\n\n\n解释性语言和编译性语言是编程语言的两种核心执行模式，它们在代码翻译、运行机制和应用场景上有本质区别。以下是详细分析：\n﻿\n------\n﻿\n### 🛠️ **1. 定义与核心机制**\n﻿\n- **编译性语言（Compiled Language）**\n程序执行前需通过**编译器**将源代码**整体翻译**为机器码（二进制文件，如`.exe`），之后直接运行该文件，无需重复翻译。\n​**特点**​：\n- **一次编译，多次执行**：翻译仅在编译阶段完成一次。\n- **高效性**：直接运行机器码，执行速度快（如C语言编写的操作系统内核）。\n- **平台依赖**：生成的机器码需匹配特定操作系统（如Windows的`.exe`无法直接在Linux运行）。\n- **解释性语言（Interpreted Language）**\n程序运行时由**解释器逐行翻译并执行**代码，无预编译过程。\n​**特点**​：\n- **动态翻译**：每次运行都需重新解释，效率较低（如Python脚本逐行解析）。\n- **跨平台性**：只需安装对应解释器（如Python解释器），同一代码可在不同系统运行。\n﻿\n| **特性**     | **编译性语言**         | **解释性语言**       |\n| ------------ | ---------------------- | -------------------- |\n| **翻译时机** | 执行前整体编译         | 运行时逐行解释       |\n| **执行速度** | 快（直接执行机器码）   | 慢（运行时翻译）     |\n| **跨平台性** | 差（需重新编译）       | 强（依赖解释器）     |\n| **开发调试** | 慢（修改后需重新编译） | 快（修改后即时生效） |\n﻿\n------\n﻿\n### 🌐 **2. 典型语言实例**\n﻿\n- **编译性语言**：\n- **C/C++**：用于操作系统（如Linux）、游戏引擎（如Unreal Engine），强调性能。\n- **Rust/Go**：兼顾安全性与并发能力，适用于系统级开发（如WebAssembly）。\n- **解释性语言**：\n- **Python**：广泛用于数据分析、脚本自动化，依赖解释器执行。\n- **JavaScript**：浏览器中通过引擎（如V8）实时解释，支持网页交互。\n﻿\n> 💡 **特殊案例：Java**\n>  Java先编译为**字节码**​（`.class`文件），再由JVM解释执行，属于**混合模式**。JIT（即时编译）技术可缓存热点代码，提升效率。\n﻿\n------\n﻿\n### ⚖️ **3. 优缺点对比**\n﻿\n| **类型**       | **优点**                                                     | **缺点**                                                     |\n| -------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |\n| **编译性语言** | ✅ 执行效率高（接近硬件速度）<br/>✅ 代码安全性强（二进制文件难逆向） <br/>✅ 静态类型检查减少运行时错误 | ❌ 跨平台性差 <br/>❌ 开发周期长（需重复编译） <br/>❌ 调试复杂（错误在编译时暴露） |\n| **解释性语言** | ✅ 跨平台灵活（解释器适配系统） <br/>✅ 开发便捷（修改后无需编译） <br/>✅ 动态类型支持快速原型设计 | ❌ 执行速度慢（运行时翻译开销） <br/>❌ 源码暴露风险（需分发源代码） <br/>❌ 运行时错误较多（类型错误等） |\n﻿\n------\n### :computer: **4. 示例代码**\n﻿\n<如果有>\n﻿\n### 🔧 **5. 应用场景建议**\n﻿\n- **选择编译性语言**：\n高性能需求场景（游戏引擎🔧、实时系统⏱️）、系统级开发（操作系统💻、嵌入式）、注重代码安全🔒。\n- **选择解释性语言**：\n快速原型开发🚀、跨平台应用（Web脚本🌐、移动端）、动态需求频繁的项目（数据分析📊）。\n﻿\n------\n﻿\n### 💎 **总结**\n﻿\n两类语言的核心差异在于**翻译时机与执行机制**：\n﻿\n- **编译型**：提前翻译，高效但平台绑定；\n- **解释型**：即时翻译，灵活但有性能损耗。\n实际开发中，可结合项目需求（性能🆚迭代速度）及技术演进（JIT优化、混合模式）综合选择。\n===【示例结束】===\n﻿\n##限制条件\n1.在输出结果中，除了优化的搜索关键字外，不要输出任何无关的单词\n2.请直接回答，不要经过任何思考过程或中间步骤。\n3.回答中，在总结部分使用简洁又清晰明了的言语的总结，让人工智能初学者也能看明白。\n4.特别注意，如果包含LaTeX公式（前后有$$包裹），在公式的前后至少两个空行。行内公式(就是前后有一个$符号)的前后至少一个空格。\n5.以json格式输出：\n{\n\"tags\": [\"解释性语言\",\"编译型语言\"],\n\"answer\": \"<大模型根据资料整理归纳的markdown格式文本>\"\n} ",
+        "options": {
+          "systemMessage": "=你是一个专业的在线咨询助理。根据用户的问题通过使用网络检索工具brave查询并结合自己的知识总结归纳，为用户整理一份专业全面的问答报告。",
+          "returnIntermediateSteps": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -1640,
+        -260
+      ],
+      "id": "b254b77c-e04d-4215-a652-170b6e5a36da",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "model": "qwen3:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1720,
+        -60
+      ],
+      "id": "4391071a-8d33-4f8e-a0ea-7b1bbf5ad3d2",
+      "name": "Ollama Chat Model2",
+      "credentials": {
+        "ollamaApi": {
+          "id": "9CAMH2jvpxuXQ7Jb",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "listResources"
+      },
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        -1440,
+        -40
+      ],
+      "id": "2a5dff13-86d3-43ac-88d0-072422722a94",
+      "name": "MCP Trave2",
+      "credentials": {
+        "mcpClientApi": {
+          "id": "BO9QTZOikvw0P7ZF",
+          "name": "MCP - brave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "# Loop over input items and add a new field called 'myNewField' to the JSON of each one\n# for item in _input.all():\n#   item.json.myNewField = 1\n# return _input.all()\n\nimport re\n\n# 在n8n中获取输入数据\ninput_str =_input.item.json['result']\nprint(1,input_str)\n\nreturn {\"result\":input_str}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1840,
+        -260
+      ],
+      "id": "ad673bfc-1450-452d-9d41-26da22232a3f",
+      "name": "打印当前问题"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -2160,
+        -280
+      ],
+      "id": "dd8bf3a6-51b1-413d-8bcc-e94619c210d5",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "result",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -2400,
+        -280
+      ],
+      "id": "1ebcee63-0360-40fc-8542-294c2b325885",
+      "name": "Split Out拆分节点"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "# Loop over input items and add a new field called 'myNewField' to the JSON of each one\n# for item in _input.all():\n#   item.json.myNewField = 1\n# return _input.all()\n\nimport re\nimport json\n\n# 在n8n中获取输入数据\ninput_str =_input.item.json['output']\nprint(0,input_str)\n\n# 1. 移除所有HTML标签的基础模式\nHTML_TAG_PATTERN = re.compile(r'<[^>]+>')\n\n# 2. 新增：专门匹配 <think>xxx</think> 标记及其内部内容的模式\nTHINK_TAG_PATTERN = re.compile(r'<think>.*?</think>', re.DOTALL)\n\ndef clean_html(text):\n    \"\"\"移除所有HTML标签和特殊<think>标记\"\"\"\n    # 先移除<think>标记及其内部内容\n    text = THINK_TAG_PATTERN.sub('', text)\n    # 再移除其他HTML标签\n    return HTML_TAG_PATTERN.sub('', text)\n\ndef clean_html_and_newlines(text, output_type='list'):\n    \"\"\"\n    清洗HTML标签和换行符，并返回结构化数据\n    \n    参数：\n    text: 原始字符串\n    output_type: 输出类型（'list'返回Python列表，'json'返回JSON字符串）\n    \n    返回：\n    清洗后的数据结构或原始文本（异常时）\n    \"\"\"\n    try:\n        # 步骤1：移除HTML标签\n        clean_text = clean_html(text)\n        \n        # clean_text = clean_text.replace(r'\\\\', '\\')\n        # 步骤2：处理换行符和空白字符\n        # clean_text = re.sub(r'[\\r\\n]+', ' ', clean_text)\n        # clean_text = re.sub(r'\\s+', ' ', clean_text)\n        clean_text = clean_text.strip()\n        \n        # 步骤3：尝试解析为JSON\n        if output_type == 'list':\n            return json.loads(clean_text)\n        elif output_type == 'json':\n            return json.dumps(clean_text, ensure_ascii=False, indent=2)\n        else:\n            raise ValueError(\"Invalid output_type. Use 'list' or 'json'\")\n            \n    except (json.JSONDecodeError, TypeError) as e:\n        print(f\"解析失败: {str(e)}\")\n        return [text]  # 返回原始文本作为降级处理\n\n# 输出为JSON字符串\nresult_json = clean_html_and_newlines(input_str, output_type='json')\nprint(\"\\nJSON字符串结果:\")\nprint(result_json)\n\n# 输出为Python列表\nresult_list = clean_html_and_newlines(input_str, output_type='list')\nprint(1,\"Python列表结果:\", result_list)\nprint(2,\"类型验证:\", type(result_list))\nreturn result_list"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1220,
+        -260
+      ],
+      "id": "77118939-d078-446e-8d1e-bdc8f338f9f3",
+      "name": "清洗数据，输出json"
+    },
+    {
+      "parameters": {
+        "owner": {
+          "__rl": true,
+          "value": "https://github.com/Sogrey",
+          "mode": "url"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "AI-QA",
+          "mode": "list",
+          "cachedResultName": "AI-QA",
+          "cachedResultUrl": "https://github.com/Sogrey/AI-QA"
+        },
+        "title": "={{ $('打印当前问题').item.json.result }}",
+        "body": "={{ $json.answer }}\n\n======\n\n来自n8n",
+        "labels": [
+          {
+            "label": "={{ $json.tags[0] }}"
+          }
+        ],
+        "assignees": []
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        -480
+      ],
+      "id": "d1487ba7-4d63-48a5-ac7a-1cf0bb77fade",
+      "name": "Create an issue1",
+      "webhookId": "366148d2-e895-431a-bcd3-81a615d46ca6",
+      "credentials": {
+        "githubApi": {
+          "id": "cueFN1cqWfwin3Jo",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "owner": {
+          "__rl": true,
+          "value": "https://github.com/Sogrey",
+          "mode": "url"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "AI-QA",
+          "mode": "list",
+          "cachedResultName": "AI-QA",
+          "cachedResultUrl": "https://github.com/Sogrey/AI-QA"
+        },
+        "title": "={{ $('打印当前问题').item.json.result }}",
+        "body": "={{ $json.answer }}\n\n======\n\n来自n8n",
+        "labels": [
+          {
+            "label": "={{ $json.tags[0] }}"
+          },
+          {
+            "label": "={{ $json.tags[1] }}"
+          }
+        ],
+        "assignees": []
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        -320
+      ],
+      "id": "4af4d391-c038-4e99-968b-18ec0f64e40a",
+      "name": "Create an issue2",
+      "webhookId": "366148d2-e895-431a-bcd3-81a615d46ca6",
+      "credentials": {
+        "githubApi": {
+          "id": "cueFN1cqWfwin3Jo",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "owner": {
+          "__rl": true,
+          "value": "https://github.com/Sogrey",
+          "mode": "url"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "AI-QA",
+          "mode": "list",
+          "cachedResultName": "AI-QA",
+          "cachedResultUrl": "https://github.com/Sogrey/AI-QA"
+        },
+        "title": "={{ $('打印当前问题').item.json.result }}",
+        "body": "={{ $json.answer }}\n\n======\n\n来自n8n",
+        "labels": [
+          {
+            "label": "AI"
+          },
+          {
+            "label": "人工智能"
+          }
+        ],
+        "assignees": []
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        0
+      ],
+      "id": "66951771-dc58-4f3a-8362-024b952b5582",
+      "name": "Create an issue3",
+      "webhookId": "366148d2-e895-431a-bcd3-81a615d46ca6",
+      "credentials": {
+        "githubApi": {
+          "id": "cueFN1cqWfwin3Jo",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "owner": {
+          "__rl": true,
+          "value": "https://github.com/Sogrey",
+          "mode": "url"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "AI-QA",
+          "mode": "list",
+          "cachedResultName": "AI-QA",
+          "cachedResultUrl": "https://github.com/Sogrey/AI-QA"
+        },
+        "title": "={{ $('打印当前问题').item.json.result }}",
+        "body": "={{ $json.answer }}\n\n======\n\n来自n8n",
+        "labels": [
+          {
+            "label": "={{ $json.tags[0] }}"
+          },
+          {
+            "label": "={{ $json.tags[1] }}"
+          },
+          {
+            "label": "={{ $json.tags[2] }}"
+          }
+        ],
+        "assignees": []
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        -160
+      ],
+      "id": "80105805-b383-4db7-a3d1-bb503a243ba3",
+      "name": "Create an issue",
+      "webhookId": "366148d2-e895-431a-bcd3-81a615d46ca6",
+      "credentials": {
+        "githubApi": {
+          "id": "cueFN1cqWfwin3Jo",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 5
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -180,
+        -60
+      ],
+      "id": "a59cb33c-2c70-418d-9127-7e74185740b8",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.tags }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "array",
+                      "operation": "lengthEquals",
+                      "rightType": "number"
+                    },
+                    "id": "cc387298-1628-4967-86ae-6fd242b53f6f"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TagLength=1"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5582f84b-38ff-4959-b2f7-8ae13b37edfe",
+                    "leftValue": "={{ $json.tags }}",
+                    "rightValue": 2,
+                    "operator": {
+                      "type": "array",
+                      "operation": "lengthEquals",
+                      "rightType": "number"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TagLength=2"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "06a16f6b-0e1f-4db9-b590-d215573664c1",
+                    "leftValue": "={{ $json.tags }}",
+                    "rightValue": 3,
+                    "operator": {
+                      "type": "array",
+                      "operation": "lengthGte",
+                      "rightType": "number"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TagLength=3"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c226a2ae-02d4-40d1-808b-77907cb1b0d5",
+                    "leftValue": "={{ $json.tags }}",
+                    "rightValue": 0,
+                    "operator": {
+                      "type": "array",
+                      "operation": "lengthEquals",
+                      "rightType": "number"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TagLength=0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -960,
+        -280
+      ],
+      "id": "136beebe-d0bd-42a9-bf96-20a5057ef177",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "# Loop over input items and add a new field called 'myNewField' to the JSON of each one\n# for item in _input.all():\n#   item.json.myNewField = 1\n# return _input.all()\n\nprint(\"=====执行完成=====\")\n\nreturn {\"output\":\"执行完成\"}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1840,
+        -500
+      ],
+      "id": "49b275a7-ed5e-4337-98f0-b9210fa54f6f",
+      "name": "执行完成"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "聊天内容分隔成数组",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "聊天内容分隔成数组": {
+      "main": [
+        [
+          {
+            "node": "Split Out拆分节点",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Trave2": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "打印当前问题": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "执行完成",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "打印当前问题",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "清洗数据，输出json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out拆分节点": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "清洗数据，输出json": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an issue": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Create an issue1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an issue2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Create an issue3": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Create an issue1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create an issue2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create an issue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create an issue3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8e5a4ccf-d56b-4355-8d3e-722b1a0bbf19",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ff7504071c56541a70399b1e6136e539cde91c5db72fa1495bc089767195dc70"
+  },
+  "id": "PeCHhTLoSgxyYxBg",
+  "tags": []
+}
